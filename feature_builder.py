@@ -60,7 +60,7 @@ class FeatureBuilder(BaseEstimator, TransformerMixin):
                 
                 # 核心修正：統一減去固定基準日期 self.REF_DATE
                 # 這保證了訓練與預測的一致性
-                df[new_col] = (dt - self.REF_DATE).dt.days
+                df[new_col] = (dt - REF_DATE).dt.days
                 
                 # 處理缺失值：如果日期是空的，補一個代表「未知」的數值（例如 -1 或 0）
                 df[new_col] = df[new_col].fillna(-1)
