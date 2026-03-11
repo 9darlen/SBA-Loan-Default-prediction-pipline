@@ -36,12 +36,15 @@ class TestFeatureBuilder(unittest.TestCase):
     def test_currency_cleaning(self):
         """測試金額欄位是否成功轉為數字"""
         input_df = pd.DataFrame({'SBA_Appv': ['$1,234.56']})
-        
-        # 這裡會跑你 Notebook 裡面的那個 for c in cn 迴圈邏輯
         output_df = self.builder.transform(input_df)
         
-        # 必須加上 才能抓到第一 row 的 1234.56
-        self.assertEqual(output_df['SBA_Appv'].iloc[0], 1234.56)
+        # 加入這行，這樣在 GitHub Actions 的 Log 裡就能看到結果
+        print(f"\n轉換後的數值為: {output_df['SBA_Appv'].iloc}")
+        
+        # 修正測試預期值：考慮到 Log 轉換
+        import numpy as np
+        expected_val = np.log1p(1234.56)
+        self.assertAlmostEqual(output_df['SBA_Appv'].iloc, expected_val, places=5)
 
 if __name__ == '__main__':
     unittest.main()
