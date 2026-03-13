@@ -79,7 +79,6 @@ feature_selector = SelectFromModel(selector_model, prefit=False)
 # 6. Step C: 建立 Pipeline 
 pipe = Pipeline(steps=[
     ("feat", FeatureBuilder()),
-    ("impute", SimpleImputer(strategy="median")),
     ("encode", preprocess),
     ("scale", StandardScaler(with_mean=False)),
     ("selector", feature_selector),
@@ -90,13 +89,6 @@ pipe = Pipeline(steps=[
         random_state=42,
         n_jobs=-1
     )),
-    ("model", RandomForestClassifier(
-        n_estimators=200,      # 直接設定參數，不搜尋
-        max_depth=15, 
-        class_weight={0: 1, 1: 10}, 
-        random_state=42,
-        n_jobs=-1
-    ))
 ])
 
 # 7. 開始訓練
