@@ -1,5 +1,5 @@
 __pycache__/
 .venv/
 data.7z
-pipeline.joblib
+best_pipeline.joblib
 *.csv

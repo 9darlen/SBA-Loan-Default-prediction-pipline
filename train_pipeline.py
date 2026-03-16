@@ -62,12 +62,14 @@ preprocess = ColumnTransformer(
 # 使用 LogisticRegressionCV 替代 ElasticNetCV (專為分類設計)
 # penalty='elasticnet' 搭配 solver='saga'
 selector_model = LogisticRegressionCV(
-    l1_ratios=[.1, .5, .7, .9, .95, .99, 1], # 尋找最佳 L1/L2 比例
+    l1_ratios=[.1, .5, .99], # 尋找最佳 L1/L2 比例
     penalty='elasticnet',
     solver='saga', 
-    cv=5,
+    cv=3,
     random_state=42,
-    max_iter=5000,
+    tol=0.01,
+    max_iter=1000,
+    verbose=3,#顯示繁瑣進度
     n_jobs=-1 # 使用多核心加速
 )
 
@@ -87,6 +89,7 @@ pipe = Pipeline(steps=[
         max_depth=15, 
         class_weight={0: 1, 1: 10}, 
         random_state=42,
+        verbose=3,
         n_jobs=-1
     )),
 ])
@@ -100,10 +103,28 @@ proba = pipe.predict_proba(X_test)[:, 1]
 print(f"測試集 AUC: {roc_auc_score(y_test, proba):.4f}")
 
 # 9. 獲取特徵重要性 (修正原代碼中從 pipe 拿 model 的邏輯)
+# 1. 取得 Pipeline 中的各個組件
 model_step = pipe.named_steps['model']
-feature_names = pipe.named_steps['encode'].get_feature_names_out()
+selector_step = pipe.named_steps['selector']
+encode_step = pipe.named_steps['encode']
 
-importance = pd.DataFrame({'feature': feature_names, 'importance': model_step.feature_importances_})
+# 2. 取得「編碼後」的所有欄位名稱 (這是篩選前的全名清單)
+# 注意：這裡抓的是 encode 站產出的所有 column
+all_features_from_encode = encode_step.get_feature_names_out()
+
+# 3. 取得「篩選器」留下來的索引 (True/False)
+# 這是一個布林遮罩，長度會等於 all_features_from_encode
+is_selected = selector_step.get_support()
+
+# 4. 根據遮罩，過濾出最後進入 Random Forest 的名稱
+final_feature_names = all_features_from_encode[is_selected]
+
+# 5. 建立 DataFrame (這時候 row 的數量就會完全對齊了)
+importance = pd.DataFrame({
+    'feature': final_feature_names, 
+    'importance': model_step.feature_importances_
+})
+
 print("\n前 10 大重要特徵:")
 print(importance.sort_values(by='importance', ascending=False).head(10))
 
@@ -116,3 +137,4 @@ import joblib
 print("嘗試重新載入模型...")
 test_load = joblib.load("best_pipeline.joblib")
 print("載入成功！代表環境沒問題。")
+
