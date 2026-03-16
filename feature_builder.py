@@ -2,25 +2,29 @@ import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 
-CURRENCY_COLS = ['SBA_Appv','GrAppv','ChgOffPrinGr','BalanceGross','DisbursementGross']
-LOG_COLS = ['BalanceGross','SBA_Appv','GrAppv','DisbursementGross']
+
 
 class FeatureBuilder(BaseEstimator, TransformerMixin):
-    def fit(self, X, y=None):
-        return self
+    def fit(self, X, y=None): return self
 
+    def __init__(self):
+        # 這裡可以放一些固定的常數，例如需要處理的 column 名稱
+        self.currency_cols = ['SBA_Appv','GrAppv','ChgOffPrinGr','BalanceGross','DisbursementGross']
+        self.LOG_COLS = ['BalanceGross','SBA_Appv','GrAppv','DisbursementGross']
+        self.delete_cols = ['LoanNr_ChkDgt', 'Name', 'City', 'Zip', 'Bank', 'ChgOffPrinGr','ChgOffDate']
     def transform(self, X):
         df = X.copy()
-
-        # 1) 金額欄位清理成 numeric
-        for c in CURRENCY_COLS:
+        #刪掉不重要的欄位
+        df = df.drop(columns=self.delete_cols, errors='ignore')
+        # 1) """處理金額字串轉數值"""
+        for c in self.currency_cols:
             if c in df.columns:
                 df[c] = df[c].astype(str).str.replace(r'[$, ]', '', regex=True)
                 df[c] = pd.to_numeric(df[c], errors='coerce')
 
 
         # 3) log1p 金額（先 clip 到 >=0）
-        for c in LOG_COLS:
+        for c in self.LOG_COLS:
             if c in df.columns:
                 df[c] = np.log1p(pd.to_numeric(df[c], errors="coerce").clip(lower=0))
 
@@ -33,11 +37,15 @@ class FeatureBuilder(BaseEstimator, TransformerMixin):
                 "nan": "Unknown", "None": "Unknown", "": "Unknown"
             })
 
-        # 5) RevLineCr / LowDoc 缺失補 'nan'
+        # 5)缺失處理
         for c in ["RevLineCr", "LowDoc"]:
             if c in df.columns:
                 df[c] = df[c].fillna("nan")
-
+        
+        if 'State' in df.columns:
+            df['State'] = df['State'].fillna('n')
+        if 'NewExist' in df.columns:
+            df['NewExist'] = df['NewExist'].fillna(1.0) # 假設沒填的企業都是既存企業
         
         # 6) ApprovalDate / DisbursementDate -> Days_Since_...
         # 定義基準日期

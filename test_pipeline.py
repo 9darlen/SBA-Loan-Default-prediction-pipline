@@ -3,48 +3,66 @@ import pandas as pd
 import numpy as np
 from feature_builder import FeatureBuilder
 
-class TestFeatureBuilder(unittest.TestCase):
+import unittest
+import pandas as pd
+import numpy as np
+from feature_builder import FeatureBuilder
+
+class TestSBAFeaturePipeline(unittest.TestCase):
     def setUp(self):
-        """在每個測試開始前，先初始化 FeatureBuilder 實例"""
+        """每個測試開始前初始化，確保 FeatureBuilder 實作了 fit/transform"""
         self.builder = FeatureBuilder()
 
-    def test_transform_columns(self):
-        """測試轉換後的欄位(column)數量與名稱是否正確"""
-        # 1. 準備模擬資料 (包含各種原始欄位)
+    def test_imputation_and_cleaning(self):
+        """測試：缺失值填充與金額清理邏輯"""
+        # 建立模擬資料列 (row)
         input_df = pd.DataFrame({
-            'SBA_Appv': ['$50,000'],          # 測試金額清理
-            'Bank': [np.nan],                 # 測試缺失值處理
-            'NAICS': ['236115'],              # 測試取前兩碼
-            'ApprovalDate': ['2006-01-01'],   # 測試日期轉換
-            'FranchiseCode':['0'],             # 測試加盟代碼轉換
-            'RevLineCr': [np.nan]             # 測試缺失值填充
+            'SBA_Appv': ['$100,000'],    # 測試金額清理與 log1p
+            'RevLineCr': [np.nan],       # 測試 0 缺失值補 'nan'
+            'LowDoc': [np.nan],          # 測試 0 缺失值補 'nan'
+            'NewExist': [np.nan],        # 測試 NewExist 填充 (若你已在 Builder 加入)
+            'State': [np.nan]            # 測試 State 填充 (若你已在 Builder 加入)
         })
 
-        # 2. 執行轉換
         output_df = self.builder.transform(input_df)
 
-        # 3. 驗證新欄位是否存在
+        # 1. 驗證金額轉為 log1p(100000)
+        expected_money = np.log1p(100000)
+        self.assertAlmostEqual(output_df['SBA_Appv'].iloc[0], expected_money, places=4)
+
+        # 2. 驗證缺失值填充字串
+        self.assertEqual(output_df['RevLineCr'].iloc[0], "nan")
+        self.assertEqual(output_df['LowDoc'].iloc[0], "nan")
+
+    def test_column_lifecycle(self):
+        """測試：欄位 (column) 的轉換與刪除生命週期"""
+        input_df = pd.DataFrame({
+            'NAICS': ['236115'],             # 應變為 NAICS_Section 並刪除原欄位
+            'ApprovalDate': ['01-Jan-06'],    # 應變為 Days_Since_Appv 並刪除原欄位
+            'FranchiseCode': ['1'],           # 應變為 FranchiseCode_Binary 並刪除原欄位
+            'LoanNr_ChkDgt': ['123'],        # 若你在 Builder 有刪除邏輯，應消失
+            'Name': ['Test Corp']            # 若你在 Builder 有刪除邏輯，應消失
+        })
+
+        output_df = self.builder.transform(input_df)
+
+        # 1. 驗證新欄位產生
         self.assertIn('NAICS_Section', output_df.columns)
         self.assertIn('Days_Since_Appv', output_df.columns)
         self.assertIn('FranchiseCode_Binary', output_df.columns)
-        self.assertIn('Is_Bank_Missing', output_df.columns)
-
-        # 4. 驗證舊欄位是否已刪除
+        
+        # 2. 驗證舊欄位刪除
         self.assertNotIn('NAICS', output_df.columns)
         self.assertNotIn('ApprovalDate', output_df.columns)
+        self.assertNotIn('FranchiseCode', output_df.columns)
 
-    def test_currency_cleaning(self):
-        """測試金額欄位是否成功轉為數字"""
-        input_df = pd.DataFrame({'SBA_Appv': ['$1,234.56']})
+    def test_date_handling_robustness(self):
+        """測試：日期格式異常時的穩定性"""
+        # 測試空日期是否正確補為 -1
+        input_df = pd.DataFrame({'ApprovalDate': [np.nan]})
         output_df = self.builder.transform(input_df)
         
-        # 加入這行，這樣在 GitHub Actions 的 Log 裡就能看到結果
-        print(f"\n轉換後的數值為: {output_df['SBA_Appv'].iloc[0]}")
-        
-        # 修正測試預期值：考慮到 Log 轉換
-        import numpy as np
-        expected_val = np.log1p(1234.56)
-        self.assertAlmostEqual(output_df['SBA_Appv'].iloc[0], expected_val, places=5)
+        self.assertEqual(output_df['Days_Since_Appv'].iloc[0], -1)
 
 if __name__ == '__main__':
     unittest.main()

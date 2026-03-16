@@ -1,5 +1,6 @@
 import joblib
 import pandas as pd
+import sys
 from feature_builder import FeatureBuilder
 from sklearn.model_selection import train_test_split
 from sklearn.compose import ColumnTransformer,make_column_selector
@@ -15,25 +16,22 @@ from sklearn.feature_selection import SelectFromModel
 import matplotlib.pyplot as plt
 import category_encoders as ce
 
+# 檢查是否為測試模式（由 GitHub Actions 觸發）
+is_test = any("test" in arg.lower() for arg in sys.argv)
+
 # 1. 欄位設定
 TE_COLS = ['State','BankState','NAICS_Section','ApprovalFY']
 OHE_COLS = ['NewExist','UrbanRural','RevLineCr','FranchiseCode_Binary','LowDoc']
 
 
-# 2. 讀取資料並「抽樣」 (解決執行過久與環境相容問題)
+# 2. 讀取資料
 print("正在讀取資料...")
 df = pd.read_csv("data/SBAnational.csv").dropna(subset=["MIS_Status"])
-
-#刪掉不重要的欄位
-delete_cols = ['LoanNr_ChkDgt', 'Name', 'City', 'Zip', 'Bank', 'ChgOffPrinGr','ChgOffDate']
-df = df.drop(columns=delete_cols)
-
-#缺失值處理
-#state以n取代缺失值
-df['State'] = df['State'].fillna('n')   
-
-#刪除NewExist缺失的資料
-df = df.dropna(subset=['NewExist'])
+    
+# 測試模式：只抓 1000 row，避免 Actions 執行過久
+if is_test:
+    print("⚠️ 測試模式啟動：僅取 1000 筆資料列 (row)")
+    df = df.sample(n=1000, random_state=42)
 
 y = (df["MIS_Status"] == "CHGOFF").astype(int)
 X = df.drop(columns=["MIS_Status"])
@@ -48,7 +46,7 @@ tmp = FeatureBuilder().fit_transform(X_train)
 num_cols = tmp.select_dtypes(include="number").columns.tolist()
 num_cols = [c for c in num_cols if c not in TE_COLS and c not in OHE_COLS and c != 'MIS_Status']
 
-# 5. Step B: 混合編碼
+# 5. 預處理設定
 preprocess = ColumnTransformer(
     transformers=[
         ("te", ce.TargetEncoder(cols=TE_COLS), TE_COLS),
@@ -128,13 +126,17 @@ importance = pd.DataFrame({
 print("\n前 10 大重要特徵:")
 print(importance.sort_values(by='importance', ascending=False).head(10))
 
-# 10. 儲存模型 (確保檔名與 app.py 一致)
-joblib.dump(pipe, "best_pipeline.joblib")
-print("\n✅ 模型已成功儲存為 best_pipeline.joblib")
+# 根據模式決定儲存路徑
+model_filename = "test_pipeline.joblib" if is_test else "best_pipeline.joblib"
+
+# 儲存模型
+joblib.dump(pipe, model_filename)
+print(f"\n✅ 模型已成功儲存為 {model_filename}")
+
 
 # train.py 的最後面
 import joblib
 print("嘗試重新載入模型...")
-test_load = joblib.load("best_pipeline.joblib")
+test_load = joblib.load(model_filename)
 print("載入成功！代表環境沒問題。")
 
