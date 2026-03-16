@@ -27,8 +27,8 @@ OHE_COLS = ['NewExist','UrbanRural','RevLineCr','FranchiseCode_Binary','LowDoc']
 # 2. 讀取資料
 print("正在讀取資料...")
 if is_test:
-    print("⚠️ 測試模式：生成模擬數據以跳過大型 CSV 讀取...")
-    # 建立一個包含所有必要欄位 (column) 的假資料
+    print("⚠️ 測試模式：生成模擬數據...")
+    # 建立 10 筆資料，並確保目標變數 (y) 有 0 也有 1
     dummy_data = {
         'State': ['CA']*10, 'BankState': ['CA']*10, 'ApprovalFY': ['2006']*10,
         'NAICS': ['236115']*10, 'NewExist': [1.0]*10, 'UrbanRural': [1]*10,
@@ -36,7 +36,8 @@ if is_test:
         'SBA_Appv': ['$10,000']*10, 'GrAppv': ['$10,000']*10, 
         'DisbursementGross': ['$10,000']*10, 'BalanceGross': ['$0']*10,
         'ChgOffPrinGr': ['$0']*10, 'ApprovalDate': ['1-Jan-06']*10,
-        'MIS_Status': ['P I F']*10
+        # 💡 重點：前 5 筆是 P I F (0)，後 5 筆是 CHGOFF (1)
+        'MIS_Status': ['P I F']*5 + ['CHGOFF']*5 
     }
     df = pd.DataFrame(dummy_data)
 else:
