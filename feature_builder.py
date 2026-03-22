@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import datetime
 from sklearn.base import BaseEstimator, TransformerMixin
 
 
@@ -9,9 +10,9 @@ class FeatureBuilder(BaseEstimator, TransformerMixin):
 
     def __init__(self):
         # 這裡可以放一些固定的常數，例如需要處理的 column 名稱
-        self.currency_cols = ['SBA_Appv','GrAppv','ChgOffPrinGr','BalanceGross','DisbursementGross']
-        self.LOG_COLS = ['BalanceGross','SBA_Appv','GrAppv','DisbursementGross']
-        self.delete_cols = ['LoanNr_ChkDgt', 'Name', 'City', 'Zip', 'Bank', 'ChgOffPrinGr','ChgOffDate']
+        self.currency_cols = ['SBA_Appv','GrAppv']
+        self.LOG_COLS = ['SBA_Appv','GrAppv']
+        self.delete_cols = ['LoanNr_ChkDgt', 'Name', 'City', 'Zip', 'Bank', 'ChgOffPrinGr','ChgOffDate','DisbursementGross','DisbursementDate','BalanceGross','CreateJob','RetainedJob']  # 刪除不需要欄位
     def transform(self, X):
         df = X.copy()
         #刪掉不重要的欄位
@@ -51,8 +52,7 @@ class FeatureBuilder(BaseEstimator, TransformerMixin):
         # 定義基準日期
         REF_DATE = pd.Timestamp('1970-01-01') 
         date_cols = [
-            ("ApprovalDate", "Days_Since_Appv"), 
-            ("DisbursementDate", "Days_Since_Disb")
+            ("ApprovalDate", "Days_Since_Appv")
         ]
         
         for orig_col, new_col in date_cols:

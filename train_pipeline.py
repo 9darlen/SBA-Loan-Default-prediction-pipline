@@ -34,8 +34,7 @@ if is_test:
         'NAICS': ['236115']*10, 'NewExist': [1.0]*10, 'UrbanRural': [1]*10,
         'RevLineCr': ['N']*10, 'LowDoc': ['N']*10, 'FranchiseCode': ['0']*10,
         'SBA_Appv': ['$10,000']*10, 'GrAppv': ['$10,000']*10, 
-        'DisbursementGross': ['$10,000']*10, 'BalanceGross': ['$0']*10,
-        'ChgOffPrinGr': ['$0']*10, 'ApprovalDate': ['1-Jan-06']*10,
+        'ApprovalDate': ['1-Jan-06']*10,
         # 💡 重點：前 5 筆是 P I F (0)，後 5 筆是 CHGOFF (1)
         'MIS_Status': ['P I F']*5 + ['CHGOFF']*5 
     }

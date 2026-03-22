@@ -30,7 +30,7 @@ jobs:
         run: python train_pipeline.py --mode=test
 
       - name: 3. Syntax Check
-        run: python -m py_compile app.py feature_builder.py train_pipeline.py
+        run: python -m py_compile page.py feature_builder.py train_pipeline.py
 
       - name: Upload Test Model Artifact 
         # 將測試產出的 joblib 暫存，方便你確認流程是否真的跑通

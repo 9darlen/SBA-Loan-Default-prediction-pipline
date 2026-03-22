@@ -4,7 +4,6 @@ pd.set_option("mode.string_storage", "python")
 
 import streamlit as st
 import joblib
-# ... 後續保持不變
 import numpy as np
 
 # 設定頁面標題
