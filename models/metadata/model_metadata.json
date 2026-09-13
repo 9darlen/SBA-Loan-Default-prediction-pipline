@@ -1,0 +1,8 @@
+{
+  "model_name": "sba-loan-default-pipeline",
+  "model_version": "1.0.0",
+  "artifact_path": "models/artifacts/best_pipeline.joblib",
+  "artifact_type": "joblib",
+  "notes": "Existing primary sklearn pipeline artifact. The artifact is intentionally not reserialized in UNIT-001."
+}
+

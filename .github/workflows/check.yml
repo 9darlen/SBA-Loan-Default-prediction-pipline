@@ -23,14 +23,14 @@ jobs:
 
       - name: 1. Run Unit Tests (Quality Gate)
         # 確保 FeatureBuilder 邏輯穩健
-        run: python tests/unit/test_pipeline.py
+        run: python -m unittest discover tests
 
       - name: 2. Run Smoke Test Training
         # 啟動測試模式，確保能產出 test_pipeline.joblib
         run: python training/pipelines/train_pipeline.py --mode=test
 
       - name: 3. Syntax Check
-        run: python -m py_compile app/page.py feature_builder.py training/features/feature_builder.py training/pipelines/train_pipeline.py tests/unit/test_pipeline.py
+        run: python -m py_compile app/page.py app/core/config.py app/services/prediction_service.py feature_builder.py training/features/feature_builder.py training/pipelines/train_pipeline.py tests/unit/test_pipeline.py tests/unit/test_prediction_service.py tests/regression/test_model_regression.py
 
       - name: Upload Test Model Artifact 
         # 將測試產出的 joblib 暫存，方便你確認流程是否真的跑通

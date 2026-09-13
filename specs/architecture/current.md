@@ -5,6 +5,8 @@
 - `training/features/feature_builder.py`: custom sklearn transformer for feature engineering.
 - `training/pipelines/train_pipeline.py`: training entry point.
 - `app/page.py`: Streamlit runtime interface.
+- `app/services/prediction_service.py`: reusable model loading and prediction service.
+- `app/core/config.py`: application model-serving configuration.
 - `feature_builder.py`: compatibility shim for existing serialized model artifacts.
 - `tests/unit/test_pipeline.py`: unit tests for feature engineering behavior.
 
@@ -22,10 +24,19 @@
 
 ## Inference Flow
 
+### Streamlit
+
 1. Streamlit gathers single-loan form input or uploaded CSV rows.
 2. The app loads `models/artifacts/best_pipeline.joblib`.
 3. The serialized sklearn pipeline performs preprocessing and prediction.
 4. The app displays default probability and simple risk level output.
+
+### Prediction Service
+
+1. Python caller passes a raw loan application dictionary.
+2. `PredictionService` validates required raw feature fields.
+3. The service loads the configured sklearn pipeline artifact.
+4. The service returns `request_id`, `prediction`, `default_probability`, and `model_version`.
 
 ## External Dependencies
 

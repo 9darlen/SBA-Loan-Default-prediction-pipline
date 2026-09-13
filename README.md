@@ -56,18 +56,42 @@ streamlit run app\page.py
 
 The app loads `models/artifacts/best_pipeline.joblib`.
 
+Python service usage:
+
+```python
+from app.services.prediction_service import predict_one
+
+result = predict_one({
+    "State": "CA",
+    "BankState": "CA",
+    "NAICS": "236115",
+    "NewExist": 1.0,
+    "UrbanRural": 1,
+    "RevLineCr": "N",
+    "LowDoc": "N",
+    "FranchiseCode": "0",
+    "GrAppv": 50000,
+    "SBA_Appv": 40000,
+    "Term": 60,
+    "NoEmp": 10,
+    "ApprovalDate": "01-Jan-06",
+    "ApprovalFY": 2006,
+})
+```
+
 ## Testing
 
 ```powershell
 python tests\unit\test_pipeline.py
+python -m unittest discover tests
 python -m py_compile app\page.py feature_builder.py training\features\feature_builder.py training\pipelines\train_pipeline.py tests\unit\test_pipeline.py
 ```
 
 ## Current Development Unit
 
-`UNIT-001 Model Packaging`
+`UNIT-002 Prediction API`
 
-See `SPEC.md` and `specs/units/UNIT-001-model-packaging/`.
+See `SPEC.md` and `specs/units/UNIT-002-prediction-api/`.
 
 ## Roadmap
 

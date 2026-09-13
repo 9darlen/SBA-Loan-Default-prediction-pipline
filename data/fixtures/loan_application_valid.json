@@ -1,0 +1,17 @@
+{
+  "State": "CA",
+  "BankState": "CA",
+  "NAICS": "236115",
+  "NewExist": 1.0,
+  "UrbanRural": 1,
+  "RevLineCr": "N",
+  "LowDoc": "N",
+  "FranchiseCode": "0",
+  "GrAppv": 50000,
+  "SBA_Appv": 40000,
+  "Term": 60,
+  "NoEmp": 10,
+  "ApprovalDate": "01-Jan-06",
+  "ApprovalFY": 2006
+}
+

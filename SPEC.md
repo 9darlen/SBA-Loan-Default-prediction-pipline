@@ -14,7 +14,7 @@ delivery_method: AI-DLC
 status: active
 spec_version: 0.2.0
 primary_language: Python
-current_priority: UNIT-001-model-packaging
+current_priority: UNIT-002-prediction-api
 ```
 
 ## Source of Truth
@@ -474,8 +474,6 @@ A Unit is done only when:
 ## 14. Current Priority
 
 ```text
-UNIT-001 Package Existing Model
-then
 UNIT-002 Create Prediction API
 ```
 
