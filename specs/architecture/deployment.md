@@ -6,7 +6,13 @@ No production deployment configuration exists.
 
 ## Local Runtime
 
-The Streamlit application can be run locally:
+The FastAPI application can be run locally:
+
+```powershell
+uvicorn app.main:app --reload
+```
+
+The Streamlit application can also be run locally:
 
 ```powershell
 streamlit run app\page.py

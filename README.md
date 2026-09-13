@@ -50,6 +50,22 @@ python training\pipelines\train_pipeline.py --mode=test
 
 ## Inference
 
+FastAPI:
+
+```powershell
+uvicorn app.main:app --reload
+```
+
+Endpoints:
+
+```text
+GET  /health
+GET  /version
+POST /predict
+```
+
+Streamlit:
+
 ```powershell
 streamlit run app\page.py
 ```
@@ -84,7 +100,7 @@ result = predict_one({
 ```powershell
 python tests\unit\test_pipeline.py
 python -m unittest discover tests
-python -m py_compile app\page.py feature_builder.py training\features\feature_builder.py training\pipelines\train_pipeline.py tests\unit\test_pipeline.py
+python -m py_compile app\page.py app\main.py app\api\routes.py app\schemas\prediction.py feature_builder.py training\features\feature_builder.py training\pipelines\train_pipeline.py tests\unit\test_pipeline.py
 ```
 
 ## Current Development Unit

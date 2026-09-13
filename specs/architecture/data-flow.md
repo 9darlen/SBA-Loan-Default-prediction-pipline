@@ -5,7 +5,8 @@ data/raw/SBAnational.csv
   -> training/features/FeatureBuilder
   -> training/pipelines/train_pipeline.py
   -> models/artifacts/*.joblib
-  -> app/page.py
+  -> app/services/prediction_service.py
+  -> app/api/routes.py or app/page.py
   -> prediction output
 ```
 

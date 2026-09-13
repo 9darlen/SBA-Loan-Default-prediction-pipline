@@ -14,7 +14,7 @@ delivery_method: AI-DLC
 status: active
 spec_version: 0.2.0
 primary_language: Python
-current_priority: UNIT-002-prediction-api
+current_priority: UNIT-003-containerization
 ```
 
 ## Source of Truth
@@ -474,7 +474,7 @@ A Unit is done only when:
 ## 14. Current Priority
 
 ```text
-UNIT-002 Create Prediction API
+UNIT-003 Dockerization
 ```
 
-Do not begin Docker, database, cloud, MLflow, microservices, or Kubernetes work yet.
+UNIT-001 and UNIT-002 are complete. Do not begin database, cloud, MLflow, microservices, or Kubernetes work yet.

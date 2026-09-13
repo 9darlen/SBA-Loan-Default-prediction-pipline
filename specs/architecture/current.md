@@ -4,6 +4,9 @@
 
 - `training/features/feature_builder.py`: custom sklearn transformer for feature engineering.
 - `training/pipelines/train_pipeline.py`: training entry point.
+- `app/main.py`: FastAPI application entry point.
+- `app/api/routes.py`: `/predict`, `/health`, and `/version` API routes.
+- `app/schemas/prediction.py`: Pydantic request and response schemas.
 - `app/page.py`: Streamlit runtime interface.
 - `app/services/prediction_service.py`: reusable model loading and prediction service.
 - `app/core/config.py`: application model-serving configuration.
@@ -38,6 +41,18 @@
 3. The service loads the configured sklearn pipeline artifact.
 4. The service returns `request_id`, `prediction`, `default_probability`, and `model_version`.
 
+### FastAPI
+
+1. Client sends raw loan application JSON to `POST /predict`.
+2. Pydantic validates request fields.
+3. API route calls `PredictionService`.
+4. Response contains `request_id`, `prediction`, `default_probability`, and `model_version`.
+
+Operational endpoints:
+
+- `GET /health`
+- `GET /version`
+
 ## External Dependencies
 
 Dependencies are listed in `requirements.txt`, including pandas, scikit-learn, category_encoders, xgboost, matplotlib, and streamlit.
@@ -52,4 +67,4 @@ Training produces `.joblib` artifacts in `models/artifacts/`. The Streamlit app 
 
 ## Deployment Approach
 
-No production deployment configuration currently exists. CI runs basic Python checks through GitHub Actions.
+No production deployment configuration currently exists. The API can run locally with `uvicorn app.main:app`. CI runs Python checks through GitHub Actions.
