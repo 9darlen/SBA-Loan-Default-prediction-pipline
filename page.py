@@ -3,9 +3,14 @@ import joblib
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import os
+
+
 
 # 載入模型
-model = joblib.load("best_pipeline.joblib")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(BASE_DIR, "best_pipeline.joblib")
+model = joblib.load(model_path)
 now = pd.Timestamp.now()
 REF_DATE = pd.Timestamp('1970-01-01')
 days_since_appv = (now - REF_DATE).days
@@ -145,11 +150,37 @@ elif page == "📈 模型分析":
     uploaded_file = st.file_uploader("上傳測試資料 (CSV)", type="csv")
 
     if uploaded_file is not None:
-        df = pd.read_csv(uploaded_file)
+        df = pd.read_csv(uploaded_file, low_memory=False)
+
         if len(df) > 10000:
             df_sample = df.sample(10000, random_state=42)
         else:
             df_sample = df
+        
+        required_cols = [
+            "State",
+            "BankState",
+            "NAICS",
+            "NewExist",
+            "UrbanRural",
+            "RevLineCr",
+            "LowDoc",
+            "FranchiseCode",
+            "GrAppv",
+            "SBA_Appv",
+            "Term",
+            "NoEmp",
+            "ApprovalDate",
+            "ApprovalFY"
+        ]
+
+        missing_cols = [col for col in required_cols if col not in df.columns]
+
+        if missing_cols:
+            st.error(f"❌ 欄位不完整，缺少：{missing_cols}")
+            st.stop()
+
+        
         st.write("資料預覽")
         st.dataframe(df_sample.head())
 
