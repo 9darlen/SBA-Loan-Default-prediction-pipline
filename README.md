@@ -65,10 +65,16 @@ python -m py_compile app\page.py feature_builder.py training\features\feature_bu
 
 ## Current Development Unit
 
-`UNIT-000 Repository Restructuring`
+`UNIT-001 Model Packaging`
 
-See `specs/units/UNIT-000-repository-restructuring/`.
+See `SPEC.md` and `specs/units/UNIT-001-model-packaging/`.
 
 ## Roadmap
 
 Future work should be described as Units under `specs/units/` before implementation.
+
+Current roadmap:
+
+1. `UNIT-001` Package Existing Model
+2. `UNIT-002` Create Prediction API
+3. Future Unit: Dockerization
