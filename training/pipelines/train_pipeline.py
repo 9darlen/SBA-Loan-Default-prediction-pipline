@@ -1,7 +1,13 @@
 import joblib
 import pandas as pd
 import sys
-from feature_builder import FeatureBuilder
+from pathlib import Path
+
+ROOT_DIR = Path(__file__).resolve().parents[2]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+from training.features.feature_builder import FeatureBuilder
 from sklearn.model_selection import train_test_split
 from sklearn.compose import ColumnTransformer,make_column_selector
 from sklearn.pipeline import Pipeline
@@ -16,6 +22,9 @@ from sklearn.feature_selection import SelectFromModel
 import matplotlib.pyplot as plt
 import category_encoders as ce
 
+DATA_PATH = ROOT_DIR / "data" / "raw" / "SBAnational.csv"
+ARTIFACT_DIR = ROOT_DIR / "models" / "artifacts"
+
 # 檢查是否為測試模式（由 GitHub Actions 觸發）
 is_test = any("test" in arg.lower() for arg in sys.argv)
 
@@ -27,7 +36,7 @@ OHE_COLS = ['NewExist','UrbanRural','RevLineCr','FranchiseCode_Binary','LowDoc']
 # 2. 讀取資料
 print("正在讀取資料...")
 if is_test:
-    print("⚠️ 測試模式：生成模擬數據...")
+    print("[TEST] 測試模式：生成模擬數據...")
     # 建立 10 筆資料，並確保目標變數 (y) 有 0 也有 1
     dummy_data = {
         'State': ['CA']*10, 'BankState': ['CA']*10, 'ApprovalFY': ['2006']*10,
@@ -41,7 +50,7 @@ if is_test:
     df = pd.DataFrame(dummy_data)
 else:
     # 正式訓練時才讀取實際檔案
-    df = pd.read_csv("data/SBAnational.csv").dropna(subset=["MIS_Status"])
+    df = pd.read_csv(DATA_PATH).dropna(subset=["MIS_Status"])
 
 
 y = (df["MIS_Status"] == "CHGOFF").astype(int)
@@ -138,11 +147,12 @@ print("\n前 10 大重要特徵:")
 print(importance.sort_values(by='importance', ascending=False).head(10))
 
 # 根據模式決定儲存路徑
-model_filename = "test_pipeline.joblib" if is_test else "best_pipeline.joblib"
+ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
+model_filename = ARTIFACT_DIR / ("test_pipeline.joblib" if is_test else "best_pipeline.joblib")
 
 # 儲存模型
 joblib.dump(pipe, model_filename)
-print(f"\n✅ 模型已成功儲存為 {model_filename}")
+print(f"\n[OK] 模型已成功儲存為 {model_filename}")
 
 
 # train.py 的最後面

@@ -1,12 +1,14 @@
 import unittest
+import sys
+from pathlib import Path
 import pandas as pd
 import numpy as np
-from feature_builder import FeatureBuilder
 
-import unittest
-import pandas as pd
-import numpy as np
-from feature_builder import FeatureBuilder
+ROOT_DIR = Path(__file__).resolve().parents[2]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+from training.features.feature_builder import FeatureBuilder
 
 class TestSBAFeaturePipeline(unittest.TestCase):
     def setUp(self):

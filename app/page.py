@@ -3,13 +3,16 @@ import joblib
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import os
+import sys
+from pathlib import Path
 
 
 
 # 載入模型
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-model_path = os.path.join(BASE_DIR, "best_pipeline.joblib")
+ROOT_DIR = Path(__file__).resolve().parents[1]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+model_path = ROOT_DIR / "models" / "artifacts" / "best_pipeline.joblib"
 model = joblib.load(model_path)
 now = pd.Timestamp.now()
 REF_DATE = pd.Timestamp('1970-01-01')

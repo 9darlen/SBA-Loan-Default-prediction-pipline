@@ -1,5 +1,6 @@
 __pycache__/
 .venv/
+.pytest_cache/
 data.7z
 best_pipeline.joblib
 *.csv
